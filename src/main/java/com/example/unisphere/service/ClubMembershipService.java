@@ -2,6 +2,7 @@ package com.example.unisphere.service;
 
 import com.example.unisphere.dto.membership_dto.ClubMembershipResponse;
 import com.example.unisphere.exception.ClubMembershipAlreadyExistsException;
+import com.example.unisphere.exception.ClubNotFoundException;
 import com.example.unisphere.mapper.ClubMembershipMapper;
 import com.example.unisphere.model.Club;
 import com.example.unisphere.model.ClubMemberRole;
@@ -38,27 +39,21 @@ public class ClubMembershipService {
             throw new ClubMembershipAlreadyExistsException();
         }
         ClubMembership membership = new ClubMembership();
-        Club club = clubRepository.findById(clubId).orElseThrow();
+        Club club = clubRepository.findById(clubId).orElseThrow(ClubNotFoundException::new);
         User user = userRepository.findById(uid).orElseThrow();
         membership.setJoinedAt(LocalDateTime.now());
         membership.setClub(club);
         membership.setRole(ClubMemberRole.MEMBER);
         membership.setUser(user);
         membership = clubMembershipRepository.save(membership);
-        ClubMembershipResponse membershipResponse  = clubMembershipMapper.toResponse(membership);
-        return membershipResponse;
+        return clubMembershipMapper.toResponse(membership);
     }
     public void leaveClub(String uid, Long clubId){
         Optional<ClubMembership> membership = clubMembershipRepository.findByUserUidAndClubId(uid,clubId);
-        if(membership.isPresent()){
-            clubMembershipRepository.delete(membership.get());
-        }
+        membership.ifPresent(clubMembershipRepository::delete);
     }
     public List<ClubMembershipResponse> getClubMembers(Long clubId){
         List<ClubMembership> membership = clubMembershipRepository.findAllByClubId(clubId);
-            return membership.stream().map((eachMembership) -> {
-                ClubMembershipResponse response = clubMembershipMapper.toResponse(eachMembership);
-                return response;
-            } ).toList();
+            return membership.stream().map(clubMembershipMapper::toResponse).toList();
     }
 }
