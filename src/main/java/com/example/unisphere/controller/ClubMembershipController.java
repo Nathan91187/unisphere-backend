@@ -18,7 +18,7 @@ public class ClubMembershipController {
         return clubMembershipService.getClubMembers(clubId);
     }
     @PostMapping("/{clubId}/memberships")
-    public ClubMembershipResponse joinClub(@PathVariable Long clubId, String uid){
+    public ClubMembershipResponse joinClub(@PathVariable Long clubId, @RequestParam String uid){ // provide proper uid after firebase auth and spring security
         return clubMembershipService.joinClub(uid,clubId);
     }
     @DeleteMapping("/{clubId}/memberships")
