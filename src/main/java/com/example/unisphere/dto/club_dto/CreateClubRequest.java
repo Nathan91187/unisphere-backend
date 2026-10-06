@@ -2,6 +2,7 @@ package com.example.unisphere.dto.club_dto;
 
 import com.example.unisphere.model.ClubCategory;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class CreateClubRequest {
     @NotBlank
@@ -10,8 +11,7 @@ public class CreateClubRequest {
     private String description;
     @NotBlank
     private String imageUrl;
-    private int memberCount = 0;
-    @NotBlank
+    @NotNull
     private ClubCategory category;
     public String getName() {
         return name;
@@ -30,12 +30,6 @@ public class CreateClubRequest {
     }
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-    public int getMemberCount() {
-        return memberCount;
-    }
-    public void setMemberCount(int memberCount) {
-        this.memberCount = memberCount;
     }
     public ClubCategory getCategory() {
         return category;
