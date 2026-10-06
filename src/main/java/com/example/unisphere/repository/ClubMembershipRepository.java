@@ -10,4 +10,5 @@ public interface ClubMembershipRepository extends JpaRepository<ClubMembership,L
     boolean existsByUserUidAndClubId(String uid, Long clubId);
     Optional<ClubMembership> findByUserUidAndClubId(String uid, Long clubId);
     List<ClubMembership> findAllByClubId(Long clubId);
+    void deleteAllByClubId(Long clubId);
 }
