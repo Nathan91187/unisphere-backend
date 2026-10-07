@@ -1,6 +1,6 @@
 package com.example.unisphere.controller;
 
-import com.example.unisphere.dto.membership_dto.ClubMembershipResponse;
+import com.example.unisphere.dto.membership.ClubMembershipResponse;
 import com.example.unisphere.service.ClubMembershipService;
 import org.springframework.web.bind.annotation.*;
 
