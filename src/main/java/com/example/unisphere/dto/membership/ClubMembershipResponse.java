@@ -1,4 +1,4 @@
-package com.example.unisphere.dto.membership_dto;
+package com.example.unisphere.dto.membership;
 
 import com.example.unisphere.model.ClubMemberRole;
 
