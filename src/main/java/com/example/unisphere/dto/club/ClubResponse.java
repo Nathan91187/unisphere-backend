@@ -1,8 +1,6 @@
-package com.example.unisphere.dto.club_dto;
+package com.example.unisphere.dto.club;
 
 import com.example.unisphere.model.ClubCategory;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 
 public class ClubResponse {
     private Long id;
