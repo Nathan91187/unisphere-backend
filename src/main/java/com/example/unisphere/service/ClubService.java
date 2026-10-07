@@ -1,8 +1,8 @@
 package com.example.unisphere.service;
 
-import com.example.unisphere.dto.club_dto.ClubResponse;
-import com.example.unisphere.dto.club_dto.CreateClubRequest;
-import com.example.unisphere.dto.club_dto.UpdateClubRequest;
+import com.example.unisphere.dto.club.ClubResponse;
+import com.example.unisphere.dto.club.CreateClubRequest;
+import com.example.unisphere.dto.club.UpdateClubRequest;
 import com.example.unisphere.exception.ClubNotFoundException;
 import com.example.unisphere.mapper.ClubMapper;
 import com.example.unisphere.model.Club;
