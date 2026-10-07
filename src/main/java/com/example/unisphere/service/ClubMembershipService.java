@@ -1,6 +1,6 @@
 package com.example.unisphere.service;
 
-import com.example.unisphere.dto.membership_dto.ClubMembershipResponse;
+import com.example.unisphere.dto.membership.ClubMembershipResponse;
 import com.example.unisphere.exception.ClubMembershipAlreadyExistsException;
 import com.example.unisphere.exception.ClubNotFoundException;
 import com.example.unisphere.mapper.ClubMembershipMapper;
