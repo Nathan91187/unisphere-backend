@@ -1,6 +1,6 @@
 package com.example.unisphere.mapper;
 
-import com.example.unisphere.dto.membership_dto.ClubMembershipResponse;
+import com.example.unisphere.dto.membership.ClubMembershipResponse;
 import com.example.unisphere.model.ClubMembership;
 import org.springframework.stereotype.Component;
 
