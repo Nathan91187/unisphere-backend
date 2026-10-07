@@ -1,4 +1,4 @@
-package com.example.unisphere.dto.club_dto;
+package com.example.unisphere.dto.club;
 
 import com.example.unisphere.model.ClubCategory;
 import jakarta.validation.constraints.NotBlank;
