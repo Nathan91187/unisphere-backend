@@ -1,0 +1,38 @@
+package com.example.unisphere.dto.error;
+
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+public class ErrorResponse {
+    private final int status;
+    private final String message;
+    private final LocalDateTime timestamp;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private final Map<String, String> errors;
+    public ErrorResponse(int status, String message, LocalDateTime timestamp) {
+        this(status,message,timestamp,null);
+    }
+    public ErrorResponse(int status, String message, LocalDateTime timestamp, Map<String, String> errors) {
+        this.status = status;
+        this.message = message;
+        this.timestamp = timestamp;
+        this.errors = errors;
+    }
+    public int getStatus() {
+        return status;
+    }
+    public String getMessage() {
+        return message;
+    }
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+    public Map<String, String> getErrors(){
+        return errors;
+    }
+
+
+}
