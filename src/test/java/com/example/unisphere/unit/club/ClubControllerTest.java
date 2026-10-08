@@ -1,4 +1,4 @@
-package com.example.unisphere.unit;
+package com.example.unisphere.unit.club;
 
 import com.example.unisphere.controller.ClubController;
 import com.example.unisphere.dto.club.ClubResponse;
