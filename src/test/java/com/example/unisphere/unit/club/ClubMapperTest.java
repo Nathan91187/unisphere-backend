@@ -1,4 +1,4 @@
-package com.example.unisphere.unit;
+package com.example.unisphere.unit.club;
 
 import com.example.unisphere.dto.club.ClubResponse;
 import com.example.unisphere.dto.club.CreateClubRequest;
@@ -9,8 +9,6 @@ import com.example.unisphere.model.ClubCategory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 public class ClubMapperTest {
     private ClubMapper clubMapper;
