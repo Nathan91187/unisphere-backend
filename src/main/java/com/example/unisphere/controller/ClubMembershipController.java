@@ -22,6 +22,6 @@ public class ClubMembershipController {
         return clubMembershipService.joinClub(uid,clubId);
     }
     @DeleteMapping("/{clubId}/memberships")
-    public void leaveClub(@PathVariable Long clubId,String uid){
+    public void leaveClub(@PathVariable Long clubId,@RequestParam String uid){
         clubMembershipService.leaveClub(uid,clubId);
     }}
