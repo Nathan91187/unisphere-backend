@@ -33,6 +33,52 @@ public class GlobalExceptionHandler {
                         LocalDateTime.now()
                 ));
     }
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException ex){
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        return ResponseEntity
+                .status(status)
+                .body(new ErrorResponse(
+                        status.value(),
+                        ex.getMessage(),
+                        LocalDateTime.now()
+                ));
+    }
+    @ExceptionHandler(EventNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEventNotFoundException(EventNotFoundException ex){
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        return ResponseEntity
+                .status(status)
+                .body(new ErrorResponse(
+                        status.value(),
+                        ex.getMessage(),
+                        LocalDateTime.now()
+                ));
+    }
+    @ExceptionHandler(InvalidEventDateRangeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidEventDateRangeException(
+            InvalidEventDateRangeException ex){
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        return ResponseEntity
+                .status(status)
+                .body(new ErrorResponse(
+                        status.value(),
+                        ex.getMessage(),
+                        LocalDateTime.now()
+                ));
+    }
+    @ExceptionHandler(InvalidEventTimeRangeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidEventTimeRangeException(
+            InvalidEventTimeRangeException ex){
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        return ResponseEntity
+                .status(status)
+                .body(new ErrorResponse(
+                        status.value(),
+                        ex.getMessage(),
+                        LocalDateTime.now()
+                ));
+    }
     @ExceptionHandler(ClubMembershipAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleClubMembershipAlreadyExistsException(
             ClubMembershipAlreadyExistsException ex
