@@ -12,51 +12,53 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String eventName;
-    private String eventDescription;
-    private String eventImageUrl;
+    private String name;
+    private String description;
+    private String imageUrl;
     @Enumerated(EnumType.STRING)
-    private EventCategory eventCategory;
+    private EventCategory category;
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
     private Integer capacity;
     private int attendeeCount;
     private String location;
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
     private User organizer;
+
     @ManyToOne
     private Club club;
 
-    public Long getEventId() {
+    public Long getId() {
         return id;
     }
-    public void setEventId(Long id) {
+    public void setId(Long id) {
         this.id = id;
     }
-    public String getEventName() {
-        return eventName;
+    public String getName() {
+        return name;
     }
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
+    public void setName(String eventName) {
+        this.name = eventName;
     }
-    public String getEventDescription() {
-        return eventDescription;
+    public String getDescription() {
+        return description;
     }
-    public void setEventDescription(String eventDescription) {
-        this.eventDescription = eventDescription;
+    public void setDescription(String eventDescription) {
+        this.description = eventDescription;
     }
-    public String getEventImageUrl() {
-        return eventImageUrl;
+    public String getImageUrl() {
+        return imageUrl;
     }
-    public void setEventImageUrl(String eventImageUrl) {
-        this.eventImageUrl = eventImageUrl;
+    public void setImageUrl(String eventImageUrl) {
+        this.imageUrl = eventImageUrl;
     }
-    public EventCategory getEventCategory() {
-        return eventCategory;
+    public EventCategory getCategory() {
+        return category;
     }
-    public void setEventCategory(EventCategory eventCategory) {
-        this.eventCategory = eventCategory;
+    public void setCategory(EventCategory eventCategory) {
+        this.category = eventCategory;
     }
     public LocalDate getDate() {
         return date;
@@ -88,10 +90,12 @@ public class Event {
     public void setAttendeeCount(int attendeeCount) {
         this.attendeeCount = attendeeCount;
     }
-    public String getLocation() {
-        return location;
-    }
+    public String getLocation() { return location; }
     public void setLocation(String location) {
         this.location = location;
     }
+    public User getOrganizer() { return organizer; }
+    public void setOrganizer(User organizer) { this.organizer = organizer; }
+    public Club getClub() { return club; }
+    public void setClub(Club club) { this.club = club; }
 }
