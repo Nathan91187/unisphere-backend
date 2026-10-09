@@ -21,6 +21,9 @@ public class Rsvp {
     @JoinColumn(name = "event_id" , nullable = false)
     private Event event;
     private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RsvpStatus status;
     public Long getId() {
         return id;
     }
@@ -52,4 +55,8 @@ public class Rsvp {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public RsvpStatus getStatus() {return status;}
+
+    public void setStatus(RsvpStatus status) {this.status = status;}
 }
