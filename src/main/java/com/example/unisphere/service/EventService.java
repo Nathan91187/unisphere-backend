@@ -7,10 +7,13 @@ import com.example.unisphere.exception.*;
 import com.example.unisphere.mapper.EventMapper;
 import com.example.unisphere.model.Event;
 import com.example.unisphere.model.EventCategory;
+import com.example.unisphere.model.Rsvp;
 import com.example.unisphere.repository.ClubRepository;
 import com.example.unisphere.repository.EventRepository;
+import com.example.unisphere.repository.RsvpRepository;
 import com.example.unisphere.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,16 +24,19 @@ public class EventService {
     private final EventMapper eventMapper;
     private final ClubRepository clubRepository;
     private final UserRepository userRepository;
+    private final RsvpRepository rsvpRepository;
     public EventService(
             EventRepository eventRepository,
             EventMapper eventMapper,
             ClubRepository clubRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            RsvpRepository rsvpRepository
             ){
         this.eventRepository = eventRepository;
         this.eventMapper = eventMapper;
         this.clubRepository = clubRepository;
         this.userRepository = userRepository;
+        this.rsvpRepository = rsvpRepository;
     }
     public List<EventResponse> getAllEvents(){
         List<Event> events = eventRepository.findAll();
@@ -89,9 +95,11 @@ public class EventService {
         eventMapper.updateEntity(request,event);
         return eventMapper.toResponse(eventRepository.save(event));
     }
+    @Transactional
     public void deleteEvent(Long id){
         Event event = eventRepository.findById(id).orElseThrow(EventNotFoundException::new);
+        List<Rsvp> rsvps = rsvpRepository.findByEventId(id);
+        rsvpRepository.deleteAll(rsvps);
         eventRepository.delete(event);
-        // when event is deleted the rsvps should also be deleted, make sure of that
     }
 }
