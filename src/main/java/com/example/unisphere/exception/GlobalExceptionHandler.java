@@ -92,6 +92,43 @@ public class GlobalExceptionHandler {
                         LocalDateTime.now()
                 ));
     }
+    @ExceptionHandler(RsvpAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleRsvpAlreadyExistsException(
+            RsvpAlreadyExistsException ex
+    ) {
+        HttpStatus status = HttpStatus.CONFLICT;
+
+        return ResponseEntity
+                .status(status)
+                .body(new ErrorResponse(
+                        status.value(),
+                        ex.getMessage(),
+                        LocalDateTime.now()
+                ));
+    }
+    @ExceptionHandler(EventCapacityReachedException.class)
+    public ResponseEntity<ErrorResponse> handleEventCapacityReachedException(
+            EventCapacityReachedException ex) {
+        HttpStatus status = HttpStatus.CONFLICT;
+
+        return ResponseEntity.status(status)
+                .body(new ErrorResponse(
+                        status.value(),
+                        ex.getMessage(),
+                        LocalDateTime.now()
+                ));
+    }
+    @ExceptionHandler(RsvpNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRsvpNotFoundException(RsvpNotFoundException ex){
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        return ResponseEntity
+                .status(status)
+                .body(new ErrorResponse(
+                        status.value(),
+                        ex.getMessage(),
+                        LocalDateTime.now()
+                ));
+    }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(
         MethodArgumentNotValidException ex
