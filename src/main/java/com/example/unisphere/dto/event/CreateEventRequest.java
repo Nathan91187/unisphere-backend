@@ -42,10 +42,6 @@ public class CreateEventRequest {
     @NotBlank(message = "Event location is required")
     @Size(max = 255, message = "Event location must not exceed 255 characters")
     private String location;
-
-    @NotBlank(message = "Organizer is required")
-    private String organizerUid;
-
     private Long clubId;
 
     public String getName() {
@@ -120,13 +116,6 @@ public class CreateEventRequest {
         this.location = location;
     }
 
-    public String getOrganizerUid() {
-        return organizerUid;
-    }
-
-    public void setOrganizerUid(String organizerUid) {
-        this.organizerUid = organizerUid;
-    }
 
     public Long getClubId() {
         return clubId;
