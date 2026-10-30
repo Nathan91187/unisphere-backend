@@ -70,7 +70,11 @@ public class ClubService {
             );
         }
     }
+    private void deleteClubAndMemberships(Club club) {
+        clubMembershipRepository.deleteAllByClubId(club.getId());
 
+        clubRepository.delete(club);
+    }
     public ClubResponse getClubById(Long clubId) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(ClubNotFoundException::new);
@@ -149,7 +153,6 @@ public class ClubService {
 
         verifyOrganizerRole(id);
 
-        clubMembershipRepository.deleteAllByClubId(id);
-        clubRepository.delete(club);
+        deleteClubAndMemberships(club);
     }
 }
