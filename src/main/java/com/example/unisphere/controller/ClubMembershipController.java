@@ -2,6 +2,7 @@ package com.example.unisphere.controller;
 
 import com.example.unisphere.dto.membership.ClubMembershipResponse;
 import com.example.unisphere.service.ClubMembershipService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,11 +18,20 @@ public class ClubMembershipController {
     public List<ClubMembershipResponse> getClubMembers(@PathVariable Long clubId){
         return clubMembershipService.getClubMembers(clubId);
     }
+    @GetMapping("/{clubId}/memberships/leave-check")
+    public boolean checkLeaveEligibility(@PathVariable Long clubId) {
+        return clubMembershipService.isOnlyOrganizer(clubId);
+    }
     @PostMapping("/{clubId}/memberships")
-    public ClubMembershipResponse joinClub(@PathVariable Long clubId, @RequestParam String uid){ // provide proper uid after firebase auth and spring security
-        return clubMembershipService.joinClub(uid,clubId);
+    @ResponseStatus(HttpStatus.CREATED)
+    public ClubMembershipResponse joinClub(@PathVariable Long clubId){
+        return clubMembershipService.joinClub(clubId);
     }
     @DeleteMapping("/{clubId}/memberships")
-    public void leaveClub(@PathVariable Long clubId,@RequestParam String uid){
-        clubMembershipService.leaveClub(uid,clubId);
-    }}
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void leaveClub(@PathVariable Long clubId){
+        clubMembershipService.leaveClub(clubId);
+    }
+
+
+}
