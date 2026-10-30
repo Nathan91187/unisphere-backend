@@ -67,7 +67,14 @@ public class EventService {
             );
         }
     }
+    private void deleteEventAndRsvps(Event event) {
+        List<Rsvp> rsvps =
+                rsvpRepository.findByEventId(event.getId());
 
+        rsvpRepository.deleteAll(rsvps);
+
+        eventRepository.delete(event);
+    }
     public List<EventResponse> getAllEvents() {
         List<Event> events = eventRepository.findAll();
         return events.stream().map(eventMapper::toResponse).toList();
@@ -168,10 +175,6 @@ public class EventService {
                 .orElseThrow(EventNotFoundException::new);
 
         verifyEventOwnership(event);
-
-        List<Rsvp> rsvps = rsvpRepository.findByEventId(id);
-        rsvpRepository.deleteAll(rsvps);
-
-        eventRepository.delete(event);
+        deleteEventAndRsvps(event);
     }
 }
