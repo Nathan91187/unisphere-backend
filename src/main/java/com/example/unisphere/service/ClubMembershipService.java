@@ -11,7 +11,11 @@ import com.example.unisphere.model.User;
 import com.example.unisphere.repository.ClubMembershipRepository;
 import com.example.unisphere.repository.ClubRepository;
 import com.example.unisphere.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,41 +23,117 @@ import java.util.Optional;
 
 @Service
 public class ClubMembershipService {
+
     private final ClubMembershipRepository clubMembershipRepository;
     private final ClubRepository clubRepository;
     private final UserRepository userRepository;
     private final ClubMembershipMapper clubMembershipMapper;
-    public ClubMembershipService(ClubMembershipRepository clubMembershipRepository,
-                                 ClubRepository clubRepository,
-                                 UserRepository userRepository,
-                                 ClubMembershipMapper clubMembershipMapper
-                                 ){
+
+    public ClubMembershipService(
+            ClubMembershipRepository clubMembershipRepository,
+            ClubRepository clubRepository,
+            UserRepository userRepository,
+            ClubMembershipMapper clubMembershipMapper
+    ) {
         this.clubMembershipRepository = clubMembershipRepository;
         this.clubRepository = clubRepository;
         this.userRepository = userRepository;
         this.clubMembershipMapper = clubMembershipMapper;
     }
 
-    public ClubMembershipResponse joinClub(String uid, Long clubId) {
-        if(clubMembershipRepository.existsByUserUidAndClubId(uid,clubId)){
+    private String getAuthenticatedUid() {
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || !(authentication.getPrincipal() instanceof String uid)) {
+            throw new AccessDeniedException("User is not authenticated");
+        }
+
+        return uid;
+    }
+
+    @Transactional
+    public ClubMembershipResponse joinClub(Long clubId) {
+        String uid = getAuthenticatedUid();
+
+        if (clubMembershipRepository.existsByUserUidAndClubId(uid, clubId)) {
             throw new ClubMembershipAlreadyExistsException();
         }
+
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(ClubNotFoundException::new);
+
+        User user = userRepository.findById(uid)
+                .orElseThrow(() -> new AccessDeniedException(
+                        "User profile does not exist"
+                ));
+
         ClubMembership membership = new ClubMembership();
-        Club club = clubRepository.findById(clubId).orElseThrow(ClubNotFoundException::new);
-        User user = userRepository.findById(uid).orElseThrow();
         membership.setJoinedAt(LocalDateTime.now());
         membership.setClub(club);
         membership.setRole(ClubMemberRole.MEMBER);
         membership.setUser(user);
+
         membership = clubMembershipRepository.save(membership);
+
         return clubMembershipMapper.toResponse(membership);
     }
-    public void leaveClub(String uid, Long clubId){
-        Optional<ClubMembership> membership = clubMembershipRepository.findByUserUidAndClubId(uid,clubId);
-        membership.ifPresent(clubMembershipRepository::delete);
+
+    @Transactional
+    public void leaveClub(Long clubId) {
+        String uid = getAuthenticatedUid();
+
+        Optional<ClubMembership> membership =
+                clubMembershipRepository.findByUserUidAndClubId(uid, clubId);
+
+        if (membership.isEmpty()) {
+            return;
+        }
+
+        if (membership.get().getRole() == ClubMemberRole.ORGANIZER
+                && isOnlyOrganizer(clubId)) {
+            throw new AccessDeniedException(
+                    "You are the only organizer. Deleting the club is required."
+            );
+        }
+
+        clubMembershipRepository.delete(membership.get());
     }
-    public List<ClubMembershipResponse> getClubMembers(Long clubId){
-        List<ClubMembership> membership = clubMembershipRepository.findAllByClubId(clubId);
-            return membership.stream().map(clubMembershipMapper::toResponse).toList();
+
+    public List<ClubMembershipResponse> getClubMembers(Long clubId) {
+        String uid = getAuthenticatedUid();
+
+        if (!clubMembershipRepository.existsByUserUidAndClubId(uid, clubId)) {
+            throw new AccessDeniedException(
+                    "Only club members can view the member list"
+            );
+        }
+
+        List<ClubMembership> memberships =
+                clubMembershipRepository.findAllByClubId(clubId);
+
+        return memberships.stream()
+                .map(clubMembershipMapper::toResponse)
+                .toList();
+    }
+    public boolean isOnlyOrganizer(Long clubId) {
+        String uid = getAuthenticatedUid();
+
+        ClubMembership membership = clubMembershipRepository
+                .findByUserUidAndClubId(uid, clubId)
+                .orElseThrow(() -> new AccessDeniedException(
+                        "You are not a member of this club"
+                ));
+
+        long organizerCount = clubMembershipRepository
+                .findAllByClubId(clubId)
+                .stream()
+                .filter(m -> m.getRole() == ClubMemberRole.ORGANIZER)
+                .count();
+        if (membership.getRole() != ClubMemberRole.ORGANIZER) {
+            return false;
+        }
+        return organizerCount == 1;
     }
 }
