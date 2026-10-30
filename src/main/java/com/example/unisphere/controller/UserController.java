@@ -24,17 +24,16 @@ public class UserController {
     public UserResponse createUser(@RequestBody @Valid CreateUserRequest request){
         return userService.createUser(request);
     }
-    @PutMapping("/{userUid}")
+    @PutMapping("/me")
     public UserResponse updateUser(
-            @PathVariable String userUid,
             @Valid @RequestBody UpdateUserRequest request
-    ){
-        return userService.updateUser(userUid,request);
+    ) {
+        return userService.updateUser(request);
     }
-    @DeleteMapping("/{userUid}")
+    @DeleteMapping("/me")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUser(@PathVariable String userUid){
-        userService.deleteUser(userUid);
+    public void deleteUser(){
+        userService.deleteUser();
     }
 
 }
