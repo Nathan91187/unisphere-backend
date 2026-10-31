@@ -76,7 +76,8 @@ public class ClubMembershipService {
         membership.setUser(user);
 
         membership = clubMembershipRepository.save(membership);
-
+        club.setMemberCount(club.getMemberCount() + 1);
+        clubRepository.save(club);
         return clubMembershipMapper.toResponse(membership);
     }
 
@@ -99,6 +100,9 @@ public class ClubMembershipService {
         }
 
         clubMembershipRepository.delete(membership.get());
+        Club club = membership.get().getClub();
+        club.setMemberCount(Math.max(0, club.getMemberCount() - 1));
+        clubRepository.save(club);
     }
 
     public List<ClubMembershipResponse> getClubMembers(Long clubId) {
@@ -135,5 +139,16 @@ public class ClubMembershipService {
             return false;
         }
         return organizerCount == 1;
+    }
+    public ClubMembershipResponse getMyMembership(Long clubId) {
+        String uid = getAuthenticatedUid();
+
+        ClubMembership membership = clubMembershipRepository
+                .findByUserUidAndClubId(uid, clubId)
+                .orElseThrow(() -> new AccessDeniedException(
+                        "You are not a member of this club"
+                ));
+
+        return clubMembershipMapper.toResponse(membership);
     }
 }
