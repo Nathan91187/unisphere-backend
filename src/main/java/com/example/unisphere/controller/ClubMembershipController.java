@@ -22,6 +22,10 @@ public class ClubMembershipController {
     public boolean checkLeaveEligibility(@PathVariable Long clubId) {
         return clubMembershipService.isOnlyOrganizer(clubId);
     }
+    @GetMapping("/{clubId}/memberships/me")
+    public ClubMembershipResponse getMyMembership(@PathVariable Long clubId){
+        return  clubMembershipService.getMyMembership(clubId);
+    }
     @PostMapping("/{clubId}/memberships")
     @ResponseStatus(HttpStatus.CREATED)
     public ClubMembershipResponse joinClub(@PathVariable Long clubId){
