@@ -97,7 +97,7 @@ public class SecurityConfig {
                                 "/clubs/search",
                                 "/clubs/filter"
                         ).permitAll()
-
+                        .requestMatchers(HttpMethod.GET, "/users/availability").permitAll()
                         // Everything else requires authentication
                         .anyRequest().authenticated()
                 )
