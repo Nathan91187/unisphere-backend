@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -19,10 +21,23 @@ public class UserController {
     public UserResponse getUserByUid(@PathVariable String userUid){
         return userService.getUserByUid(userUid);
     }
+    @GetMapping("/search")
+    public List<UserResponse> searchUsersByUsername(
+            @RequestParam String username) {
+        return userService.searchUsersByUsername(username);
+    }
+    @GetMapping("/availability")
+    public boolean isUsernameAvailable(@RequestParam String username) {
+        return userService.isUsernameAvailable(username);
+    }
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse createUser(@RequestBody @Valid CreateUserRequest request){
         return userService.createUser(request);
+    }
+    @PostMapping("/bulk")
+    public List<UserResponse> getAllUsersByUid(@RequestBody List<String>uids){
+        return userService.getAllUsersByUid(uids);
     }
     @PutMapping("/me")
     public UserResponse updateUser(
