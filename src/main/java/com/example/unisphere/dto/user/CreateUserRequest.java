@@ -2,9 +2,17 @@
 package com.example.unisphere.dto.user;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class CreateUserRequest {
+        @NotBlank(message = "Username is required")
+        @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
+        @Pattern(
+                regexp = "^[a-zA-Z0-9_]+$",
+                message = "Username can only contain letters, numbers, and underscores"
+        )
+        private String username;
         @NotBlank(message = "Display name is required")
         @Size(max = 100, message = "Display name must not exceed 100 characters")
         private String displayName;
@@ -20,6 +28,15 @@ public class CreateUserRequest {
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
 
     public String getProfileImageUrl() {
         return profileImageUrl;
