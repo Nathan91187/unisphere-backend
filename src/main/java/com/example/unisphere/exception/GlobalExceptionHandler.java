@@ -56,6 +56,17 @@ public class GlobalExceptionHandler {
                         LocalDateTime.now()
                 ));
     }
+    @ExceptionHandler(UsernameAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUsernameAlreadyExistsException(UsernameAlreadyExistsException ex){
+        HttpStatus status = HttpStatus.CONFLICT;
+        return ResponseEntity
+                .status(status)
+                .body(new ErrorResponse(
+                        status.value(),
+                        ex.getMessage(),
+                        LocalDateTime.now()
+                ));
+    }
     @ExceptionHandler(EventNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEventNotFoundException(EventNotFoundException ex){
         HttpStatus status = HttpStatus.NOT_FOUND;
