@@ -13,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.*;
 
@@ -54,20 +56,43 @@ class UserControllerTest {
     }
 
     @Test
+    void searchUsersByUsernameDelegatesToService() {
+        List<UserResponse> expected = List.of(userResponse);
+        when(userService.searchUsersByUsername("alex")).thenReturn(expected);
+
+        List<UserResponse> result =
+                userController.searchUsersByUsername("alex");
+
+        assertSame(expected, result);
+        verify(userService).searchUsersByUsername("alex");
+    }
+
+    @Test
+    void getAllUsersByUidDelegatesToService() {
+        List<String> uids = List.of("user123", "user456");
+        List<UserResponse> expected = List.of(userResponse);
+
+        when(userService.getAllUsersByUid(uids)).thenReturn(expected);
+
+        List<UserResponse> result = userController.getAllUsersByUid(uids);
+
+        assertSame(expected, result);
+        verify(userService).getAllUsersByUid(uids);
+    }
+
+    @Test
     void updateUserDelegatesToService() {
         UpdateUserRequest request = new UpdateUserRequest();
-        when(userService.updateUser("user123", request)).thenReturn(userResponse);
-
-        UserResponse result = userController.updateUser("user123", request);
-
+        when(userService.updateUser(request)).thenReturn(userResponse);
+        UserResponse result = userController.updateUser(request);
         assertSame(userResponse, result);
-        verify(userService).updateUser("user123", request);
+        verify(userService).updateUser(request);
     }
 
     @Test
     void deleteUserDelegatesToService() {
-        userController.deleteUser("user123");
+        userController.deleteUser();
 
-        verify(userService).deleteUser("user123");
+        verify(userService).deleteUser();
     }
 }
