@@ -2,12 +2,10 @@
 package com.example.unisphere.dto.user;
 
 public class UserResponse {
-
     private String uid;
-    private String email;
+    private String username;
     private String displayName;
     private String profileImageUrl;
-
     public String getUid() {
         return uid;
     }
@@ -15,13 +13,12 @@ public class UserResponse {
     public void setUid(String uid) {
         this.uid = uid;
     }
-
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getDisplayName() {
