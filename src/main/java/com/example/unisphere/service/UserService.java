@@ -5,6 +5,7 @@ import com.example.unisphere.dto.user.UpdateUserRequest;
 import com.example.unisphere.dto.user.UserResponse;
 import com.example.unisphere.exception.UserAlreadyExistsException;
 import com.example.unisphere.exception.UserNotFoundException;
+import com.example.unisphere.exception.UsernameAlreadyExistsException;
 import com.example.unisphere.mapper.UserMapper;
 import com.example.unisphere.model.*;
 import com.example.unisphere.repository.*;
@@ -49,7 +50,6 @@ public class UserService {
                 (FirebaseToken) authentication.getDetails();
 
         String email = firebaseToken.getEmail();
-
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException(
                     "Authenticated Firebase account has no email"
@@ -58,9 +58,14 @@ public class UserService {
         if (userRepository.existsById(uid)) {
             throw new UserAlreadyExistsException();
         }
+        String username = request.getUsername().trim();
+        if(userRepository.existsByUsernameIgnoreCase(username)){
+            throw new UsernameAlreadyExistsException();
+        }
         User user = new User();
         user.setUid(uid);
         user.setEmail(email);
+        user.setUsername(username);
         user.setDisplayName(request.getDisplayName());
         user.setProfileImageUrl(request.getProfileImageUrl());
 
@@ -70,6 +75,21 @@ public class UserService {
         User user = userRepository.findById(uid).orElseThrow(UserNotFoundException::new);
         return userMapper.toResponse(user);
     }
+    public List<UserResponse> searchUsersByUsername(String username) {
+        List<User> users =
+                userRepository.findByUsernameContainingIgnoreCase(username);
+
+        return users.stream()
+                .map(userMapper::toResponse)
+                .toList();
+    }
+    public List<UserResponse> getAllUsersByUid(List<String> uids){
+        List<User> users = userRepository.findAllById(uids);
+        return users.stream().map((userMapper::toResponse)).toList();
+    }
+    public boolean isUsernameAvailable(String username) {
+        return !userRepository.existsByUsernameIgnoreCase(username.trim());
+    }
     public UserResponse updateUser(UpdateUserRequest request) {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
@@ -78,7 +98,9 @@ public class UserService {
 
         User existingUser = userRepository.findById(uid)
                 .orElseThrow(UserNotFoundException::new);
-
+        if(userRepository.existsByUsernameIgnoreCaseAndUidNot(request.getUsername(),uid)){
+            throw new UsernameAlreadyExistsException();
+        }
         userMapper.updateEntity(existingUser, request);
 
         return userMapper.toResponse(userRepository.save(existingUser));
