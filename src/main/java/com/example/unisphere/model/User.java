@@ -11,8 +11,15 @@ public class User {
     @Column(nullable = false)
     private String displayName;
     private String profileImageUrl;
+    private String profileImagePublicId;
     @Column(nullable = false,unique = true)
     private String username;
+    public String getProfileImagePublicId() {
+        return profileImagePublicId;
+    }
+    public void setProfileImagePublicId(String profileImagePublicId) {
+        this.profileImagePublicId = profileImagePublicId;
+    }
     public String getUid() {
         return uid;
     }
