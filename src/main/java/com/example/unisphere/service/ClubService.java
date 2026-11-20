@@ -1,10 +1,14 @@
 
 package com.example.unisphere.service;
 
+import com.example.unisphere.cloudinary.CloudinaryService;
+import com.example.unisphere.cloudinary.ImageFolder;
+import com.example.unisphere.cloudinary.UploadedImage;
 import com.example.unisphere.dto.club.ClubResponse;
 import com.example.unisphere.dto.club.CreateClubRequest;
 import com.example.unisphere.dto.club.UpdateClubRequest;
 import com.example.unisphere.exception.ClubNotFoundException;
+import com.example.unisphere.exception.ImageUploadException;
 import com.example.unisphere.mapper.ClubMapper;
 import com.example.unisphere.model.Club;
 import com.example.unisphere.model.ClubCategory;
@@ -13,12 +17,16 @@ import com.example.unisphere.model.ClubMembership;
 import com.example.unisphere.repository.ClubMembershipRepository;
 import com.example.unisphere.repository.ClubRepository;
 import com.example.unisphere.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,19 +37,23 @@ public class ClubService {
     private final ClubMapper clubMapper;
     private final ClubMembershipRepository clubMembershipRepository;
     private final UserRepository userRepository;
+    private final CloudinaryService cloudinaryService;
 
     public ClubService(
             ClubRepository clubRepository,
             ClubMapper clubMapper,
             ClubMembershipRepository clubMembershipRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            CloudinaryService cloudinaryService
     ) {
         this.clubRepository = clubRepository;
         this.clubMapper = clubMapper;
         this.clubMembershipRepository = clubMembershipRepository;
         this.userRepository = userRepository;
+        this.cloudinaryService = cloudinaryService;
     }
-
+    private static final Logger logger =
+            LoggerFactory.getLogger(ClubService.class);
     private String getAuthenticatedUid() {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
@@ -155,4 +167,42 @@ public class ClubService {
 
         deleteClubAndMemberships(club);
     }
-}
+    public ClubResponse updateClubImage(Long clubId, MultipartFile file) {
+
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(ClubNotFoundException::new);
+
+        verifyOrganizerRole(clubId);
+
+        String oldPublicId = club.getImagePublicId();
+
+        UploadedImage uploadedImage;
+        try {
+            uploadedImage = cloudinaryService.upload(
+                    file,
+                    ImageFolder.CLUB
+            );
+        } catch (IOException e) {
+            throw new ImageUploadException();
+        }
+
+        club.setImageUrl(uploadedImage.secureUrl());
+        club.setImagePublicId(uploadedImage.publicId());
+
+        Club savedClub = clubRepository.save(club);
+
+        if (oldPublicId != null && !oldPublicId.isBlank()) {
+            try {
+                cloudinaryService.delete(oldPublicId);
+            } catch (IOException e) {
+                logger.error(
+                        "Failed to delete previous club image for club {}. Public ID: {}",
+                        clubId,
+                        oldPublicId,
+                        e
+                );
+            }
+        }
+
+        return clubMapper.toResponse(savedClub);
+    }}
