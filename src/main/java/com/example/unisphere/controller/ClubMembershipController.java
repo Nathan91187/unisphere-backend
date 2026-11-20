@@ -1,6 +1,7 @@
 package com.example.unisphere.controller;
 
 import com.example.unisphere.dto.membership.ClubMembershipResponse;
+import com.example.unisphere.model.ClubMemberRole;
 import com.example.unisphere.service.ClubMembershipService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,14 @@ public class ClubMembershipController {
     @ResponseStatus(HttpStatus.CREATED)
     public ClubMembershipResponse joinClub(@PathVariable Long clubId){
         return clubMembershipService.joinClub(clubId);
+    }
+    @PutMapping("/{clubId}/memberships/{targetUid}/role")
+    public ClubMembershipResponse updateMemberRole(
+            @PathVariable Long clubId,
+            @PathVariable String targetUid,
+            @RequestBody ClubMemberRole role
+    ) {
+        return clubMembershipService.updateMemberRole(clubId, targetUid, role);
     }
     @DeleteMapping("/{clubId}/memberships")
     @ResponseStatus(HttpStatus.NO_CONTENT)
