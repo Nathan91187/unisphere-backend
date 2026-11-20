@@ -8,7 +8,9 @@ import com.example.unisphere.model.EventCategory;
 import com.example.unisphere.service.EventService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -58,6 +60,16 @@ public class EventController {
     @PutMapping("/{eventId}")
     public EventResponse updateEvent(@Valid @RequestBody UpdateEventRequest request, @PathVariable Long eventId){
         return eventService.updateEvent(request , eventId);
+    }
+    @PutMapping(
+            value = "/{eventId}/image",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public EventResponse updateEventImage(
+            @PathVariable Long eventId,
+            @RequestParam("file") MultipartFile file
+    ) {
+        return eventService.updateEventImage(eventId, file);
     }
     @DeleteMapping("/{eventId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
