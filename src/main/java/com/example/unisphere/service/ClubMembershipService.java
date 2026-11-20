@@ -151,4 +151,61 @@ public class ClubMembershipService {
 
         return clubMembershipMapper.toResponse(membership);
     }
+    @Transactional
+    public ClubMembershipResponse updateMemberRole(
+            Long clubId,
+            String targetUid,
+            ClubMemberRole newRole
+    ) {
+        String currentUid = getAuthenticatedUid();
+
+        ClubMembership currentMembership = clubMembershipRepository
+                .findByUserUidAndClubId(currentUid, clubId)
+                .orElseThrow(() -> new AccessDeniedException(
+                        "You are not a member of this club"
+                ));
+
+        if (currentMembership.getRole() != ClubMemberRole.ORGANIZER) {
+            throw new AccessDeniedException(
+                    "Only organizers can manage member roles"
+            );
+        }
+
+        if (currentUid.equals(targetUid)) {
+            throw new AccessDeniedException(
+                    "You cannot change your own role"
+            );
+        }
+
+        ClubMembership targetMembership = clubMembershipRepository
+                .findByUserUidAndClubId(targetUid, clubId)
+                .orElseThrow(() -> new AccessDeniedException(
+                        "Target user is not a member of this club"
+                ));
+
+        if (targetMembership.getRole() == newRole) {
+            throw new IllegalArgumentException(
+                    "Member already has this role"
+            );
+        }
+        if (targetMembership.getRole() == ClubMemberRole.ORGANIZER
+                && newRole == ClubMemberRole.MEMBER) {
+
+            long organizerCount = clubMembershipRepository
+                    .findAllByClubId(clubId)
+                    .stream()
+                    .filter(m -> m.getRole() == ClubMemberRole.ORGANIZER)
+                    .count();
+            if (organizerCount <= 1) {
+                throw new AccessDeniedException(
+                        "A club must have at least one organizer"
+                );
+            }
+        }
+
+        targetMembership.setRole(newRole);
+        ClubMembership updatedMembership =
+                clubMembershipRepository.save(targetMembership);
+        return clubMembershipMapper.toResponse(updatedMembership);
+    }
 }
