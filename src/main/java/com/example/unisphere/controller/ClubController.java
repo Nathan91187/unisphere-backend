@@ -8,7 +8,9 @@ import com.example.unisphere.model.ClubCategory;
 import com.example.unisphere.service.ClubService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,6 +25,17 @@ public class ClubController {
     @PostMapping
     public ClubResponse createClub( @Valid @RequestBody CreateClubRequest createClubRequest){
         return clubService.createClub(createClubRequest);
+    }
+
+    @PutMapping(
+            value = "/{clubId}/image",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ClubResponse updateClubImage(
+            @PathVariable Long clubId,
+            @RequestParam("file") MultipartFile file
+    ) {
+        return clubService.updateClubImage(clubId, file);
     }
     @GetMapping
     public List<ClubResponse> getAllClubs(){
