@@ -6,7 +6,9 @@ import com.example.unisphere.dto.user.UserResponse;
 import com.example.unisphere.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -29,6 +31,13 @@ public class UserController {
     @GetMapping("/availability")
     public boolean isUsernameAvailable(@RequestParam String username) {
         return userService.isUsernameAvailable(username);
+    }
+    @PostMapping(
+            value = "/me/update-profile-image",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public UserResponse updateProfileImage(@RequestParam("file")MultipartFile file){
+        return userService.updateProfileImage(file);
     }
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
