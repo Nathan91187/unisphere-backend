@@ -9,6 +9,7 @@ import com.example.unisphere.model.Club;
 import com.example.unisphere.model.ClubCategory;
 import com.example.unisphere.repository.ClubMembershipRepository;
 import com.example.unisphere.repository.ClubRepository;
+import com.example.unisphere.repository.UserRepository;
 import com.example.unisphere.service.ClubService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,9 +32,11 @@ public class ClubServiceTest {
     private ClubMapper clubMapper;
     @Mock
     private ClubMembershipRepository clubMembershipRepository;
+    @Mock
+    private UserRepository userRepository;
     @BeforeEach
     void setUp(){
-        clubService = new ClubService(clubRepository,clubMapper,clubMembershipRepository);
+        clubService = new ClubService(clubRepository,clubMapper,clubMembershipRepository,userRepository);
     }
     @Test
     void getClubByIdReturnsClubResponse(){

@@ -76,7 +76,7 @@ class RsvpServiceTest {
         when(rsvpMapper.toResponse(any(Rsvp.class))).thenReturn(response);
 
         RsvpResponse result =
-                rsvpService.createRsvp("uid1", 1L, RsvpStatus.GOING);
+                rsvpService.createRsvp( 1L, RsvpStatus.GOING);
 
         assertSame(response, result);
         assertEquals(3, event.getAttendeeCount());
@@ -89,7 +89,7 @@ class RsvpServiceTest {
                 .thenReturn(true);
 
         assertThrows(RsvpAlreadyExistsException.class,
-                () -> rsvpService.createRsvp("uid1", 1L, RsvpStatus.GOING));
+                () -> rsvpService.createRsvp( 1L, RsvpStatus.GOING));
 
         verify(rsvpRepository, never()).save(any());
     }
@@ -103,7 +103,7 @@ class RsvpServiceTest {
         when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
 
         assertThrows(EventCapacityReachedException.class,
-                () -> rsvpService.createRsvp("uid1", 1L, RsvpStatus.GOING));
+                () -> rsvpService.createRsvp( 1L, RsvpStatus.GOING));
 
         verify(rsvpRepository, never()).save(any());
     }
@@ -136,7 +136,7 @@ class RsvpServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(RsvpNotFoundException.class,
-                () -> rsvpService.getRsvpByUserUidAndEventId("uid1", 1L));
+                () -> rsvpService.getRsvpsByEventId(1L));
     }
 
     @Test
@@ -150,7 +150,7 @@ class RsvpServiceTest {
         when(rsvpRepository.save(rsvp)).thenReturn(rsvp);
         when(rsvpMapper.toResponse(rsvp)).thenReturn(new RsvpResponse());
 
-        rsvpService.updateRsvp("uid1", 1L, RsvpStatus.GOING);
+        rsvpService.updateRsvp(1L, RsvpStatus.GOING);
 
         assertEquals(RsvpStatus.GOING, rsvp.getStatus());
         assertEquals(3, event.getAttendeeCount());
@@ -167,7 +167,7 @@ class RsvpServiceTest {
         when(rsvpRepository.save(rsvp)).thenReturn(rsvp);
         when(rsvpMapper.toResponse(rsvp)).thenReturn(new RsvpResponse());
 
-        rsvpService.updateRsvp("uid1", 1L, RsvpStatus.MAYBE);
+        rsvpService.updateRsvp(1L, RsvpStatus.MAYBE);
 
         assertEquals(RsvpStatus.MAYBE, rsvp.getStatus());
         assertEquals(1, event.getAttendeeCount());
@@ -184,7 +184,7 @@ class RsvpServiceTest {
         when(rsvpRepository.save(rsvp)).thenReturn(rsvp);
         when(rsvpMapper.toResponse(rsvp)).thenReturn(new RsvpResponse());
 
-        rsvpService.updateRsvp("uid1", 1L, RsvpStatus.NOT_GOING);
+        rsvpService.updateRsvp( 1L, RsvpStatus.NOT_GOING);
 
         assertEquals(RsvpStatus.NOT_GOING, rsvp.getStatus());
         assertEquals(2, event.getAttendeeCount());
@@ -200,7 +200,7 @@ class RsvpServiceTest {
         when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
 
         assertThrows(EventCapacityReachedException.class,
-                () -> rsvpService.updateRsvp("uid1", 1L, RsvpStatus.GOING));
+                () -> rsvpService.updateRsvp( 1L, RsvpStatus.GOING));
 
         assertEquals(RsvpStatus.MAYBE, rsvp.getStatus());
         assertEquals(10, event.getAttendeeCount());
@@ -217,7 +217,7 @@ class RsvpServiceTest {
                 .thenReturn(Optional.of(rsvp));
         when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
 
-        rsvpService.deleteRsvp("uid1", 1L);
+        rsvpService.deleteRsvp( 1L);
 
         assertEquals(1, event.getAttendeeCount());
         verify(rsvpRepository).delete(rsvp);
@@ -233,7 +233,7 @@ class RsvpServiceTest {
                 .thenReturn(Optional.of(rsvp));
         when(eventRepository.findById(1L)).thenReturn(Optional.of(event));
 
-        rsvpService.deleteRsvp("uid1", 1L);
+        rsvpService.deleteRsvp( 1L);
 
         assertEquals(2, event.getAttendeeCount());
         verify(rsvpRepository).delete(rsvp);
@@ -245,7 +245,7 @@ class RsvpServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(RsvpNotFoundException.class,
-                () -> rsvpService.deleteRsvp("uid1", 1L));
+                () -> rsvpService.deleteRsvp( 1L));
 
         verify(rsvpRepository, never()).delete(any());
     }
