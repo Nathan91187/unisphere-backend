@@ -1,8 +1,12 @@
 package com.example.unisphere.service;
 
+import com.example.unisphere.cloudinary.CloudinaryService;
+import com.example.unisphere.cloudinary.ImageFolder;
+import com.example.unisphere.cloudinary.UploadedImage;
 import com.example.unisphere.dto.user.CreateUserRequest;
 import com.example.unisphere.dto.user.UpdateUserRequest;
 import com.example.unisphere.dto.user.UserResponse;
+import com.example.unisphere.exception.ImageUploadException;
 import com.example.unisphere.exception.UserAlreadyExistsException;
 import com.example.unisphere.exception.UserNotFoundException;
 import com.example.unisphere.exception.UsernameAlreadyExistsException;
@@ -10,11 +14,15 @@ import com.example.unisphere.mapper.UserMapper;
 import com.example.unisphere.model.*;
 import com.example.unisphere.repository.*;
 import com.google.firebase.auth.FirebaseToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -25,7 +33,9 @@ public class UserService {
     private final RsvpRepository rsvpRepository;
     private final ClubRepository clubRepository;
     private final ClubMembershipRepository clubMembershipRepository;
+    private final CloudinaryService cloudinaryService;
     public UserService(
+            CloudinaryService cloudinaryService,
             UserRepository userRepository,
             UserMapper userMapper,
             EventRepository eventRepository,
@@ -39,7 +49,10 @@ public class UserService {
         this.rsvpRepository = rsvpRepository;
         this.clubRepository = clubRepository;
         this.clubMembershipRepository = clubMembershipRepository;
+        this.cloudinaryService = cloudinaryService;
     }
+    private static final Logger logger =
+            LoggerFactory.getLogger(UserService.class);
     public UserResponse createUser(CreateUserRequest request) {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
@@ -177,5 +190,45 @@ public class UserService {
 
         // 6. Delete the user profile
         userRepository.delete(user);
+    }
+    public UserResponse updateProfileImage(MultipartFile file) {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String uid = (String) authentication.getPrincipal();
+
+        User user = userRepository.findById(uid)
+                .orElseThrow(UserNotFoundException::new);
+
+        String oldPublicId = user.getProfileImagePublicId();
+
+        UploadedImage uploadedImage;
+        try {
+            uploadedImage = cloudinaryService.upload(
+                    file,
+                    ImageFolder.PROFILE
+            );
+        } catch (IOException e) {
+            throw new ImageUploadException();
+        }
+        user.setProfileImageUrl(uploadedImage.secureUrl());
+        user.setProfileImagePublicId(uploadedImage.publicId());
+
+        User savedUser = userRepository.save(user);
+
+        if (oldPublicId != null && !oldPublicId.isBlank()) {
+            try {
+                cloudinaryService.delete(oldPublicId);
+            } catch (IOException e) {
+                logger.error(
+                        "Failed to delete previous profile image for user {}. Public ID: {}",
+                        uid,
+                        oldPublicId,
+                        e
+                );
+            }
+        }
+        return userMapper.toResponse(savedUser);
     }
 }
