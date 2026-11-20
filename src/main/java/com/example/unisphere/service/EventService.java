@@ -1,6 +1,9 @@
 
 package com.example.unisphere.service;
 
+import com.example.unisphere.cloudinary.CloudinaryService;
+import com.example.unisphere.cloudinary.ImageFolder;
+import com.example.unisphere.cloudinary.UploadedImage;
 import com.example.unisphere.dto.event.CreateEventRequest;
 import com.example.unisphere.dto.event.EventResponse;
 import com.example.unisphere.dto.event.UpdateEventRequest;
@@ -13,12 +16,16 @@ import com.example.unisphere.repository.ClubRepository;
 import com.example.unisphere.repository.EventRepository;
 import com.example.unisphere.repository.RsvpRepository;
 import com.example.unisphere.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -30,20 +37,24 @@ public class EventService {
     private final ClubRepository clubRepository;
     private final UserRepository userRepository;
     private final RsvpRepository rsvpRepository;
-
+    private final CloudinaryService cloudinaryService;
     public EventService(
             EventRepository eventRepository,
             EventMapper eventMapper,
             ClubRepository clubRepository,
             UserRepository userRepository,
-            RsvpRepository rsvpRepository
+            RsvpRepository rsvpRepository,
+            CloudinaryService cloudinaryService
     ) {
         this.eventRepository = eventRepository;
         this.eventMapper = eventMapper;
         this.clubRepository = clubRepository;
         this.userRepository = userRepository;
         this.rsvpRepository = rsvpRepository;
+        this.cloudinaryService = cloudinaryService;
     }
+    private static final Logger logger =
+            LoggerFactory.getLogger(EventService.class);
 
     private String getAuthenticatedUid() {
         Authentication authentication =
@@ -176,5 +187,42 @@ public class EventService {
 
         verifyEventOwnership(event);
         deleteEventAndRsvps(event);
+    }
+    public EventResponse updateEventImage(Long eventId, MultipartFile file) {
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(EventNotFoundException::new);
+        String oldPublicId = event.getImagePublicId();
+
+        UploadedImage uploadedImage;
+
+        try {
+            uploadedImage = cloudinaryService.upload(
+                    file,
+                    ImageFolder.EVENT
+            );
+        } catch (IOException e) {
+            throw new ImageUploadException();
+        }
+
+        event.setImageUrl(uploadedImage.secureUrl());
+        event.setImagePublicId(uploadedImage.publicId());
+
+        Event savedEvent = eventRepository.save(event);
+
+        if (oldPublicId != null && !oldPublicId.isBlank()) {
+            try {
+                cloudinaryService.delete(oldPublicId);
+            } catch (IOException e) {
+                logger.error(
+                        "Failed to delete previous event image for event {}. Public ID: {}",
+                        eventId,
+                        oldPublicId,
+                        e
+                );
+            }
+        }
+
+        return eventMapper.toResponse(savedEvent);
     }
 }
