@@ -242,6 +242,17 @@ public class GlobalExceptionHandler {
                         LocalDateTime.now()
                 ));
     }
+    @ExceptionHandler(ImageUploadException.class)
+    public ResponseEntity<ErrorResponse> handleProfileImageUploadException(ImageUploadException ex){
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        return ResponseEntity
+                .status(status)
+                .body(new ErrorResponse(
+                        status.value(),
+                        ex.getMessage(),
+                        LocalDateTime.now()
+                ));
+    }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpectedError(Exception ex){
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
