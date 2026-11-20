@@ -12,6 +12,7 @@ public class Club {
     private String name;
     private String description;
     private String imageUrl;
+    private String imagePublicId;
     private int memberCount = 0;
     @Enumerated(EnumType.STRING)
     private ClubCategory category;
@@ -39,6 +40,8 @@ public class Club {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+    public String getImagePublicId() {return imagePublicId;}
+    public void setImagePublicId(String imagePublicId) {this.imagePublicId = imagePublicId;}
     public int getMemberCount() {
         return memberCount;
     }
