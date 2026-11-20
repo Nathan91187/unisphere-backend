@@ -15,6 +15,8 @@ public class Event {
     private String name;
     private String description;
     private String imageUrl;
+    @Column(name = "image_public_id")
+    private String imagePublicId;
     @Enumerated(EnumType.STRING)
     private EventCategory category;
     private LocalDate date;
@@ -53,6 +55,13 @@ public class Event {
     }
     public void setImageUrl(String eventImageUrl) {
         this.imageUrl = eventImageUrl;
+    }
+    public String getImagePublicId() {
+        return imagePublicId;
+    }
+
+    public void setImagePublicId(String imagePublicId) {
+        this.imagePublicId = imagePublicId;
     }
     public EventCategory getCategory() {
         return category;
